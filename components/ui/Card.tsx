@@ -29,3 +29,4 @@ export function CardTitle({ children, className = '' }: CardTitleProps) {
   return <h3 className={`text-xl font-bold text-accent ${className}`}>{children}</h3>
 }
 
+

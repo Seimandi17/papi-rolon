@@ -56,3 +56,4 @@ export function GroupList({ groups, teams, onEdit, onDelete }: GroupListProps) {
   )
 }
 
+

@@ -53,3 +53,4 @@ export function ScorersTable({ players }: ScorersTableProps) {
   )
 }
 
+
