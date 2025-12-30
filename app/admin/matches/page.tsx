@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getTournament, getMatches, getGroups, getTeams, createMatch, updateMatch, deleteMatch } from '@/lib/api'
-import { MatchWithTeams, Group, Team, Tournament } from '@/lib/types'
+import { MatchWithTeams, Group, Team, Tournament, Match } from '@/lib/types'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
@@ -60,12 +60,12 @@ export default function MatchesPage() {
       return
     }
 
-    const matchData = {
+    const matchDataBase = {
       tournament_id: tournament.id,
-      group_id: formData.group_id || null,
+      group_id: formData.group_id ? formData.group_id : undefined,
       phase: formData.phase,
       match_date: formData.match_date,
-      venue: formData.venue || null,
+      venue: formData.venue ? formData.venue : undefined,
       home_team_id: formData.home_team_id,
       away_team_id: formData.away_team_id,
       home_goals: formData.home_goals,
@@ -74,13 +74,13 @@ export default function MatchesPage() {
     }
 
     if (editing) {
-      const updated = await updateMatch(editing.id, matchData)
+      const updated = await updateMatch(editing.id, matchDataBase)
       if (updated) {
         await loadData()
         resetForm()
       }
     } else {
-      const created = await createMatch(matchData)
+      const created = await createMatch(matchDataBase as Omit<Match, 'id' | 'created_at' | 'updated_at'>)
       if (created) {
         await loadData()
         resetForm()
