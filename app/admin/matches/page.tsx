@@ -60,11 +60,24 @@ export default function MatchesPage() {
       return
     }
 
+    // El input datetime-local da formato "YYYY-MM-DDTHH:mm" en hora local
+    // Parsear directamente los componentes para crear Date en hora local
+    const [datePart, timePart] = formData.match_date.split('T')
+    const [year, month, day] = datePart.split('-').map(Number)
+    const [hours, minutes] = timePart.split(':').map(Number)
+    
+    // Crear Date object en hora local (este constructor crea la fecha en hora local)
+    const localDate = new Date(year, month - 1, day, hours, minutes)
+    
+    // Convertir a ISO string para guardar (esto convertirá a UTC, pero al leerlo
+    // lo convertiremos de vuelta a hora local, preservando la hora original)
+    const isoDateString = localDate.toISOString()
+
     const matchDataBase = {
       tournament_id: tournament.id,
       group_id: formData.group_id ? formData.group_id : undefined,
       phase: formData.phase,
-      match_date: formData.match_date,
+      match_date: isoDateString,
       venue: formData.venue ? formData.venue : undefined,
       home_team_id: formData.home_team_id,
       away_team_id: formData.away_team_id,
@@ -98,12 +111,20 @@ export default function MatchesPage() {
 
   function handleEdit(match: MatchWithTeams) {
     setEditing(match)
+    // Convertir la fecha de UTC a hora local para el input datetime-local
     const matchDate = new Date(match.match_date)
-    const localDate = new Date(matchDate.getTime() - matchDate.getTimezoneOffset() * 60000)
+    // Obtener la fecha en formato local (YYYY-MM-DDTHH:mm)
+    const year = matchDate.getFullYear()
+    const month = String(matchDate.getMonth() + 1).padStart(2, '0')
+    const day = String(matchDate.getDate()).padStart(2, '0')
+    const hours = String(matchDate.getHours()).padStart(2, '0')
+    const minutes = String(matchDate.getMinutes()).padStart(2, '0')
+    const localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`
+    
     setFormData({
       group_id: match.group_id || '',
       phase: match.phase,
-      match_date: localDate.toISOString().slice(0, 16),
+      match_date: localDateTime,
       venue: match.venue || '',
       home_team_id: match.home_team_id,
       away_team_id: match.away_team_id,
