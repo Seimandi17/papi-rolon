@@ -3,6 +3,10 @@ import { TabsWrapper } from '@/app/components/TabsWrapper'
 import Image from 'next/image'
 import Link from 'next/link'
 
+// Desactivar caché para obtener datos siempre frescos
+export const revalidate = 0
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   const tournament = await getTournament()
   

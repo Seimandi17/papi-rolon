@@ -1,8 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { RefreshCw } from 'lucide-react'
 import { TabsContent } from './TabsContent'
 import { Tournament, Group, Team, MatchWithTeams, PlayerWithStats } from '@/lib/types'
+import { Button } from '@/components/ui/Button'
 
 interface TabsWrapperProps {
   tournament: Tournament
@@ -26,11 +29,19 @@ const tabs = [
 ]
 
 export function TabsWrapper(props: TabsWrapperProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState(tabs[0]?.id)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  function handleRefresh() {
+    setIsRefreshing(true)
+    router.refresh()
+    setTimeout(() => setIsRefreshing(false), 1000)
+  }
 
   return (
     <div className="w-full">
-      <div className="border-b border-gray-200">
+      <div className="flex items-center justify-between border-b border-gray-200 mb-4">
         <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
           {tabs.map((tab) => (
             <button
@@ -49,6 +60,16 @@ export function TabsWrapper(props: TabsWrapperProps) {
             </button>
           ))}
         </nav>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="ml-4"
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Actualizar
+        </Button>
       </div>
       <div className="mt-4">
         <TabsContent activeTab={activeTab} {...props} />
