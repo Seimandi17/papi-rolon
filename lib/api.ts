@@ -302,28 +302,52 @@ export async function deleteMatch(id: string): Promise<boolean> {
 
 // Players
 export async function getPlayers(tournamentId: string, teamId?: string): Promise<PlayerWithStats[]> {
-  let query = supabase
+  // Obtener jugadores
+  let playersQuery = supabase
     .from('players')
     .select(`
       *,
-      team:teams(*),
-      stats:player_stats(*)
+      team:teams(*)
     `)
     .eq('tournament_id', tournamentId)
     .order('name')
 
   if (teamId) {
-    query = query.eq('team_id', teamId)
+    playersQuery = playersQuery.eq('team_id', teamId)
   }
 
-  const { data, error } = await query
+  const { data: playersData, error: playersError } = await playersQuery
 
-  if (error) {
-    console.error('Error fetching players:', error)
+  if (playersError) {
+    console.error('Error fetching players:', playersError)
     return []
   }
 
-  return (data || []) as PlayerWithStats[]
+  if (!playersData || playersData.length === 0) {
+    return []
+  }
+
+  // Obtener estadísticas de todos los jugadores
+  const playerIds = playersData.map((p: any) => p.id)
+  const { data: statsData, error: statsError } = await supabase
+    .from('player_stats')
+    .select('*')
+    .eq('tournament_id', tournamentId)
+    .in('player_id', playerIds)
+
+  if (statsError) {
+    console.error('Error fetching player stats:', statsError)
+  }
+
+  // Combinar jugadores con sus estadísticas
+  const statsMap = new Map((statsData || []).map((stat: any) => [stat.player_id, stat]))
+
+  const playersWithStats: PlayerWithStats[] = playersData.map((player: any) => ({
+    ...player,
+    stats: statsMap.get(player.id) || null,
+  }))
+
+  return playersWithStats
 }
 
 export async function createPlayer(player: Omit<Player, 'id' | 'created_at' | 'updated_at'>): Promise<Player | null> {
@@ -336,6 +360,15 @@ export async function createPlayer(player: Omit<Player, 'id' | 'created_at' | 'u
   if (error) {
     console.error('Error creating player:', error)
     return null
+  }
+
+  // Crear estadísticas iniciales para el jugador
+  if (data) {
+    await upsertPlayerStats(data.id, player.tournament_id, {
+      goals: 0,
+      yellow_cards: 0,
+      red_cards: 0,
+    })
   }
 
   return data
