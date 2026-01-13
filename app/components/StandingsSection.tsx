@@ -55,7 +55,7 @@ export function StandingsSection({
                 <div className="mt-2 md:mt-0 flex items-center space-x-2">
                   <div className="w-4 h-4 bg-green-50 border-l-4 border-green-500"></div>
                   <p className="text-sm text-gray-600">
-                    <span className="font-semibold text-green-700">Primeros 6 clasifican</span> a fase eliminatoria
+                    <span className="font-semibold text-green-700">Primeros 8 clasifican</span> a fase eliminatoria
                   </p>
                 </div>
               </div>

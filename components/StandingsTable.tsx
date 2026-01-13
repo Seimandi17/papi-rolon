@@ -34,7 +34,7 @@ export function StandingsTable({ standings }: StandingsTableProps) {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {standings.map((standing, index) => (
-            <tr key={standing.team.id} className={index < 6 ? 'bg-green-50 border-l-4 border-green-500' : ''}>
+            <tr key={standing.team.id} className={index < 8 ? 'bg-green-50 border-l-4 border-green-500' : ''}>
               <td className="px-2 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
                 {index + 1}
               </td>
